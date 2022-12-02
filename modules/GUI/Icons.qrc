@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="Images">
+    <file>images/icons8-link-96.png</file>
+    <file>images/greenled15x15-md.png</file>
+    <file>images/led-red-control-md.png</file>
+  </qresource>
+</RCC>

@@ -1,46 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>500</width>
-    <height>200</height>
-   </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>500</width>
-    <height>200</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>500</width>
-    <height>200</height>
-   </size>
-  </property>
-  <property name="acceptDrops">
-   <bool>false</bool>
-  </property>
-  <property name="windowTitle">
-   <string>Server Python</string>
-  </property>
-  <property name="windowIcon">
-   <iconset resource="Icons.qrc">
-    <normaloff>:/Images/images/icons8-link-96.png</normaloff>:/Images/images/icons8-link-96.png</iconset>
-  </property>
-  <property name="styleSheet">
-   <string notr="true">/*
+/*
  * The MIT License (MIT)
  *
- * Copyright (c) &lt;2013-2014&gt; &lt;Colin Duquesnoy&gt;
- * Copyright (c) &lt;2017&gt; &lt;Michell Stuttgart&gt;
+ * Copyright (c) <2013-2014> <Colin Duquesnoy>
+ * Copyright (c) <2017> <Michell Stuttgart>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
@@ -49,7 +14,7 @@
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
 
- * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -595,7 +560,7 @@ QFrame
 }
 
 
-QFrame[frameShape=&quot;0&quot;]
+QFrame[frameShape="0"]
 {
     border-radius: 0px;
     border: 0px transparent #76797C;
@@ -1089,13 +1054,13 @@ QToolButton {
     margin-right: 5px;
 }
 
-QToolButton[popupMode=&quot;1&quot;] { /* only for MenuButtonPopup */
+QToolButton[popupMode="1"] { /* only for MenuButtonPopup */
  padding-right: 20px; /* make way for the popup button */
  border: 1px #76797C;
  border-radius: 0px;
 }
 
-QToolButton[popupMode=&quot;2&quot;] { /* only for InstantPopup */
+QToolButton[popupMode="2"] { /* only for InstantPopup */
  padding-right: 10px; /* make way for the popup button */
  border: 0px #76797C;
 }
@@ -1257,7 +1222,7 @@ QStatusBar::item {
  }
 
 
-QFrame[height=&quot;3&quot;], QFrame[width=&quot;3&quot;] {
+QFrame[height="3"], QFrame[width="3"] {
     background-color: #76797C;
 }
 
@@ -1337,160 +1302,3 @@ QDateEdit::down-arrow:focus
     image: url(:/qss_icons/rc/down_arrow.png);
 }
 
-</string>
-  </property>
-  <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="3" column="1">
-     <widget class="QLabel" name="label_device_connection">
-      <property name="text">
-       <string>Device Connected: </string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0" colspan="2">
-     <widget class="QPushButton" name="change_btn">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>35</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Change Ip</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QLabel" name="label_port_title">
-        <property name="text">
-         <string>Port</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit_IP">
-        <property name="text">
-         <string>5000</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </item>
-    <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QLabel" name="label_ipaddress_title">
-        <property name="text">
-         <string>IP Address</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit_ipaddress">
-        <property name="text">
-         <string>127.0.0.134</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="label_ip_device_connected">
-      <property name="text">
-       <string>Ip device connected: N/A</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0" colspan="2">
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QLabel" name="label_status">
-        <property name="text">
-         <string>Status connection: Not connected</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_led">
-        <property name="maximumSize">
-         <size>
-          <width>24</width>
-          <height>24</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <stylestrategy>PreferAntialias</stylestrategy>
-         </font>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap>:/newPrefix/images/led-red-control-md.png</pixmap>
-        </property>
-        <property name="scaledContents">
-         <bool>true</bool>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>500</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuAbout">
-    <property name="title">
-     <string>About</string>
-    </property>
-   </widget>
-   <addaction name="menuAbout"/>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
- </widget>
- <resources>
-  <include location="Icons.qrc"/>
-  <include location="style.qrc"/>
- </resources>
- <connections/>
-</ui>

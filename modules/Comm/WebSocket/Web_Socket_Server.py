@@ -1,83 +1,163 @@
-import typing
-
-from PyQt5 import QtWebSockets, QtNetwork
-from PyQt5.QtCore import QObject, pyqtSignal
-from dataclasses import dataclass
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# ----------------------------------------------------------------------------
+# Created By  :Jesus Ramos Membrive
+# Created Date: 24/11/2022
+# version ='0.1'
+# ---------------------------------------------------------------------------
+""" TODO: WEBSOCKET SERVER"""
+# ---------------------------------------------------------------------------
 import logging
 import traceback
+from dataclasses import dataclass
+# ---------------------------------------------------------------------------
+from PyQt5 import QtWebSockets, QtNetwork
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+# ---------------------------------------------------------------------------
+from modules.Comm.WebSocket.MessageProcessor import MsgProcessor
+from modules.Utils.SystemStatus import SystemStatus
 
-from PyQt5.QtWebSockets import QWebSocket
-
+# Setting logging module
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 
 @dataclass
 class QtServer(QObject):
+    """
+    """
     ipaddress: str
     port: int
     parent: QtWebSockets.QWebSocketServer
-
     rcvdMsg = pyqtSignal(str)
     connection = pyqtSignal(bool)
+    on_close_connection_signal = pyqtSignal()
 
     def __post_init__(self):
+        """
+
+        :return:
+        """
         super(QtServer, self).__init__()
+
+        print(f"self.ipaddress: {self.ipaddress}")
         self.clients = []
+        self.processor = MsgProcessor()
         self.server = QtWebSockets.QWebSocketServer(self.parent.serverName(), self.parent.NonSecureMode, self.parent)
+        self.set_up_listener()
+        self.set_up_max_pending_connections(False)
+        self.server.newConnection.connect(self.on_new_connection)
+        self.system_status = SystemStatus()
 
-        if self.localhost_or_ipadress():
-            self.listen = self.server.listen(QtNetwork.QHostAddress(QtNetwork.QHostAddress.LocalHost), self.port)
-        else:
-            self.listen =self.server.listen(QtNetwork.QHostAddress(self.ipaddress), self.port)
+    def localhost_or_ipaddress(self):
+        """
 
-        if self.listen:
-            log.info(
-                f'Connected: {self.server.serverName()} : {self.server.serverAddress().toString()}:'
-                f'{str(self.server.serverPort())}')
-        else:
-            log.info(f'QtServer error: {traceback.format_exc()}')
-        self.server.setMaxPendingConnections(1)
-
-        self.server.newConnection.connect(self.onNewConnection)
-        print(f"Server listening{self.server.isListening()}")
-
-    def log_the_correct_init(self):
-        log.info(
-            f'Connected: {self.server.serverName()} : {self.server.serverAddress().toString()}:'
-            f'{str(self.server.serverPort())}')
-
-    def localhost_or_ipadress(self):
+        :return:
+        """
         return self.ipaddress == "localhost"
 
-    def onNewConnection(self):
-        self.client_connection = self.server.nextPendingConnection()
-        self.client_connection.textMessageReceived.connect(self.processTextMessage)
-        self.client_connection.textFrameReceived.connect(self.processTextFrame)
-        self.client_connection.binaryMessageReceived.connect(self.processBinaryMessage)
-        self.client_connection.disconnected.connect(self.socketDisconnected)
-        self.client_connection.ping()
-        self.clients.append(self.client_connection)
-        self.server.setMaxPendingConnections(0)
+    def set_up_listener(self):
+        """
 
-    def processTextFrame(self, frame, is_last_frame):
-        print("in processTextFrame")
-        print(f"\tFrame: {frame} ; is_last_frame: {is_last_frame}")
+        :return:
+        """
+        if self.localhost_or_ipaddress():
+            self.listen = self.server.listen(QtNetwork.QHostAddress(QtNetwork.QHostAddress.LocalHost), self.port)
+        else:
+            self.listen = self.server.listen(QtNetwork.QHostAddress(self.ipaddress), self.port)
+
+    def on_new_connection(self):
+        """
+
+        :return:
+        """
+        try:
+            self.set_up_client()
+            self.clients.append(self.client_connection)
+            self.set_up_max_pending_connections(True)
+        except OSError:
+            log.error(traceback.format_exc())
+
+    def set_up_client(self):
+        """
+
+        :return:
+        """
+        try:
+            self.client_connection = self.server.nextPendingConnection()
+            self.client_connection.textMessageReceived.connect(self.processTextMessage)
+            self.client_connection.binaryMessageReceived.connect(self.processBinaryMessage)
+            self.client_connection.disconnected.connect(self.socket_disconnected)
+            self.system_status.new_client_connected = True
+            self.list_of_audio_devices()
+        except OSError:
+            log.error(traceback.format_exc())
 
     def processTextMessage(self, message):
+        """
+
+        :param message:
+        :return:
+        """
         if self.client_connection:
-            print(message)
+            logging.info(message)
+            self.processor.process_the_message(message)
             self.rcvdMsg.emit(message)
             self.client_connection.sendTextMessage(message)
 
     def processBinaryMessage(self, message):
+        """
+
+        :param message:
+        :return:
+        """
         if self.client_connection:
             self.client_connection.sendBinaryMessage(message)
 
-    def socketDisconnected(self):
-        if self.client_connection:
-            self.clients.clear()
-            self.client_connection.close()
-            self.server.setMaxPendingConnections(1)
-            self.client_connection.deleteLater()
+    def socket_disconnected(self):
+        """
 
+        :return:
+        """
+        try:
+            if self.client_connection:
+                self.clients.clear()
+                self.client_connection.close()
+                self.set_up_max_pending_connections(False)
+                self.client_connection.deleteLater()
+                self.on_close_connection_signal.emit()
+        except OSError:
+            log.error(traceback.format_exc())
+
+    def set_up_max_pending_connections(self, is_connection):
+        """
+
+        :param is_connection:
+        :return:
+        """
+        if is_connection:
+            self.server.setMaxPendingConnections(0)
+        else:
+            self.server.setMaxPendingConnections(1)
+
+    @pyqtSlot()
+    def disconnect_client_from_server(self):
+        try:
+            self.socket_disconnected()
+        except OSError:
+            log.error(f"Error when disconnect_client_from_server: {traceback.format_exc()}")
+
+    @pyqtSlot()
+    def list_of_audio_devices(self):
+        # if self.client_connection:
+        #     speakers_list = self.system_status.get_all_speakers()[0]
+        #     for speaker in speakers_list:
+        #         print(speaker)
+        #     microphones_list = ",".join(map(str, self.system_status.get_all_microphones(0)))
+        #     audio_device_msg = {"Id": 200, "order":
+        #         {"speakers": {speakers_list}
+        #             , "current_speaker": {self.system_status.active_speaker()}
+        #             , "microphones": {microphones_list}
+        #             , "current_microphone": {self.system_status.active_microphone()}}}
+        #     print(audio_device_msg)
+        pass
