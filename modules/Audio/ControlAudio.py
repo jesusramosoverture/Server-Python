@@ -8,7 +8,7 @@
 """ Audio control"""
 import logging
 # ---------------------------------------------------------------------------
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from threading import Lock
 # ---------------------------------------------------------------------------
 from ctypes import cast, POINTER
@@ -16,26 +16,26 @@ from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 from modules.Utils.SystemStatus import SystemStatus
 import soundcard as sc
-
+from modules.Utils.SinglentonType import SingletonMeta
 
 # ----------------------SET UP LOGGING MODULE -------------------------------
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 
-class SingletonMeta(type):
-    """
-
-    """
-    _instances = {}
-    _lock: Lock = Lock()
-
-    def __call__(cls, *args, **kwargs):
-        with cls._lock:
-            if cls not in cls._instances:
-                instance = super().__call__(*args, **kwargs)
-                cls._instances[cls] = instance
-            return cls._instances[cls]
+# class SingletonMeta(type):
+#     """
+#
+#     """
+#     _instances = {}
+#     _lock: Lock = Lock()
+#
+#     def __call__(cls, *args, **kwargs):
+#         with cls._lock:
+#             if cls not in cls._instances:
+#                 instance = super().__call__(*args, **kwargs)
+#                 cls._instances[cls] = instance
+#             return cls._instances[cls]
 
 
 @dataclass
@@ -44,6 +44,7 @@ class AudioControl(metaclass=SingletonMeta):
 
     """
     scalar_volume: int = 1
+    mics: list = field(default_factory=lambda: [])
 
     def __post_init__(self):
         """
@@ -58,12 +59,20 @@ class AudioControl(metaclass=SingletonMeta):
         self.gathering_info_audio_devices()
 
     def gathering_info_audio_devices(self):
+        """
+
+        :return:
+        """
         self.get_list_of_speakers()
         self.get_list_of_microphones()
         self.current_speaker()
         self.current_microphones()
 
     def get_list_of_speakers(self):
+        """
+
+        :return:
+        """
         speakers = sc.all_speakers()
         for speaker in speakers:
             speaker = str(speaker)
@@ -71,16 +80,30 @@ class AudioControl(metaclass=SingletonMeta):
             self.system_status.add_speaker(speaker)
 
     def get_list_of_microphones(self):
-        mics = sc.all_microphones()
-        for mic in mics:
+        """
+
+        :return:
+        """
+        self.mics = sc.all_microphones()
+        log.info(f"len of mics: {len(self.mics)}")
+        for mic in self.mics:
             mic = str(mic)
             self.system_status.add_microphone(mic)
 
     def current_speaker(self):
+        """
+
+        :return:
+        """
         self.system_status.active_speaker = str(sc.default_speaker())
 
     def current_microphones(self):
-        self.system_status.active_microphone = str(sc.default_microphone())
+        """
+
+        :return:
+        """
+        if self.mics:
+            self.system_status.active_microphone = str(sc.default_microphone())
 
     def current_volume_value(self):
         """

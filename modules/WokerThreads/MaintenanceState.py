@@ -18,6 +18,7 @@ class MaintenanceState(QObject):
     """
     finished = pyqtSignal()
     check_is_client_is_valid = pyqtSignal()
+    check_volume_change = pyqtSignal()
 
     def __init__(self):
         super(MaintenanceState, self).__init__()
@@ -50,6 +51,7 @@ class MaintenanceState(QObject):
             if self.system_status.new_client_connected is True:
                 self.check_is_client_is_valid.emit()
 
+            self.check_volume_change.emit()
             # self.finished.emit()
 
-            QThread.msleep(3000)
+            QThread.msleep(100)

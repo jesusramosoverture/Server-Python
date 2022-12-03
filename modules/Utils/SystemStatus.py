@@ -52,6 +52,7 @@ class SystemStatus(metaclass=SingletonMeta):
     def __post_init__(self):
         super(SystemStatus, self).__init__()
 
+
     @property
     def current_volume_flag(self):
         return self.flag_current_volume

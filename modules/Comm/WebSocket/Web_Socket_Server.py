@@ -9,7 +9,8 @@
 # ---------------------------------------------------------------------------
 import logging
 import traceback
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from threading import Lock
 # ---------------------------------------------------------------------------
 from PyQt5 import QtWebSockets, QtNetwork
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
@@ -22,10 +23,22 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 
+class SingletonMeta(type):
+    _instances = {}
+    _lock: Lock = Lock()
+
+    def __call__(cls, *args, **kwargs):
+        with cls._lock:
+            if cls not in cls._instances:
+                instance = super().__call__(*args, **kwargs)
+                cls._instances[cls] = instance
+            return cls._instances[cls]
+
 @dataclass
 class QtServer(QObject):
     """
     """
+
     ipaddress: str
     port: int
     parent: QtWebSockets.QWebSocketServer
@@ -39,6 +52,7 @@ class QtServer(QObject):
         :return:
         """
         super(QtServer, self).__init__()
+        __metaclass__ = SingletonMeta
 
         print(f"self.ipaddress: {self.ipaddress}")
         self.clients = []
@@ -88,6 +102,7 @@ class QtServer(QObject):
             self.client_connection.textMessageReceived.connect(self.processTextMessage)
             self.client_connection.binaryMessageReceived.connect(self.processBinaryMessage)
             self.client_connection.disconnected.connect(self.socket_disconnected)
+            self.client_connection.sendTextMessage("hola. Estoy aqui")
             self.system_status.new_client_connected = True
             self.list_of_audio_devices()
         except OSError:
@@ -149,15 +164,21 @@ class QtServer(QObject):
 
     @pyqtSlot()
     def list_of_audio_devices(self):
-        # if self.client_connection:
-        #     speakers_list = self.system_status.get_all_speakers()[0]
-        #     for speaker in speakers_list:
-        #         print(speaker)
-        #     microphones_list = ",".join(map(str, self.system_status.get_all_microphones(0)))
-        #     audio_device_msg = {"Id": 200, "order":
-        #         {"speakers": {speakers_list}
-        #             , "current_speaker": {self.system_status.active_speaker()}
-        #             , "microphones": {microphones_list}
-        #             , "current_microphone": {self.system_status.active_microphone()}}}
-        #     print(audio_device_msg)
-        pass
+        if self.client_connection:
+            speakers_list = tuple(self.system_status.get_all_speakers)
+            for speaker in speakers_list:
+                print(speaker)
+            audio_device_msg = {"Id": 200, "order":
+                {"speakers": {speakers_list}
+                    , "current_speaker": {self.system_status.active_speaker}
+                 }}
+            log.info(audio_device_msg)
+            self.client_connection.sendTextMessage(str(audio_device_msg))
+
+    def send_a_msg(self, msg ) -> None:
+        """
+
+        :param msg_to_send:
+        :return:
+        """
+        self.client_connection.sendTextMessage(msg)

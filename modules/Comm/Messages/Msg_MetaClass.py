@@ -57,7 +57,7 @@ class MessagesPayloadInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def execute_action(self, new_Value: int | str | dict) -> None:
+    def execute_action(self, new_value: int | str | dict) -> None:
         """
 
         :return:
